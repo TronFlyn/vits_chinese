@@ -39,3 +39,7 @@ python vits_strings.py
 
 2，可能影响，随机时长预测，具体配置参数：use_sdp=True
 
+# 样例音频
+
+[vits_样本.wav](./vits_样本.wav)
+
