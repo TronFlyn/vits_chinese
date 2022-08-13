@@ -17,8 +17,8 @@
     "c_kl": 1.0
   },
   "data": {
-    "training_files":"rika_train/rika_text.cleaned",
-    "validation_files":"rika_train/rika_val_text.cleaned",
+    "training_files":"rika_train/rika_text.txt.cleaned",
+    "validation_files":"rika_train/rika_val_text.txt.cleaned",
     "text_cleaners":["chinese_cleaners1"],
     "max_wav_value": 32768.0,
     "sampling_rate": 22050,
