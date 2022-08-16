@@ -1,9 +1,9 @@
 {
   "train": {
     "log_interval": 200,
-    "eval_interval": 1000,
+    "eval_interval": 10000,
     "seed": 1234,
-    "epochs": 200,
+    "epochs": 1000,
     "learning_rate": 2e-4,
     "betas": [0.8, 0.99],
     "eps": 1e-9,
