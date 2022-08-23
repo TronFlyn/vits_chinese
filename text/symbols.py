@@ -3,22 +3,18 @@
 '''
 Defines the set of symbols used in text input to the model.
 '''
-_pad        = '_'
 _punctuation = ';:,.!?¡¿—…"«»“” '
 
+# chinese_cleaners
+_pad        = '_'
 _punctuation_zh = '；：，。！？-“”《》、（）ＢＰ…— '
-_letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
-
-_numbers = '123450'
-_others = ''
-
-_letters_ipa = "ɑɐɒæɓʙβɔɕçɗɖðʤəɘɚɛɜɝɞɟʄɡɠɢʛɦɧħɥʜɨɪʝɭɬɫɮʟɱɯɰŋɳɲɴøɵɸθœɶʘɹɺɾɻʀʁɽʂʃʈʧʉʊʋⱱʌɣɤʍχʎʏʑʐʒʔʡʕʢǀǁǂǃˈˌːˑʼʴʰʱʲʷˠˤ˞↓↑→↗↘'̩'ᵻ"
+_letters = 'ㄅㄆㄇㄈㄉㄊㄋㄌㄍㄎㄏㄐㄑㄒㄓㄔㄕㄖㄗㄘㄙㄚㄛㄜㄝㄞㄟㄠㄡㄢㄣㄤㄥㄦㄧㄨㄩˉˊˇˋ˙ '
 
 
 # Export all symbols:
 symbols = [_pad] + list(_punctuation) + list(_letters) + list(_letters_ipa)
 
-symbols_zh = [_pad] + list(_punctuation_zh) +  list(_letters) + list(_numbers)
+symbols_zh = [_pad] + list(_punctuation_zh) +  list(_letters)
 
 # Special symbol ids
 SPACE_ID = symbols.index(" ")
