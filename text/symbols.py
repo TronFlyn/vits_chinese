@@ -12,7 +12,7 @@ _letters = 'ㄅㄆㄇㄈㄉㄊㄋㄌㄍㄎㄏㄐㄑㄒㄓㄔㄕㄖㄗㄘㄙㄚ�
 
 # zh_ja_mixture_cleaners
 _pad        = '_'
-_punctuation = ';:,.!?—-~…"«»“” '
+_punctuation = ',.!?-~…'
 _letters = 'AEINOQUabdefghijklmnoprstuvwyzʃʧʦɯɹəɥ⁼ʰ`→↓↑ '
 
 # Export all symbols:
