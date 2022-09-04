@@ -17,6 +17,7 @@ from unidecode import unidecode
 from phonemizer import phonemize
 from pypinyin import lazy_pinyin, BOPOMOFO
 import jieba, cn2an
+import pyopenjtalk
 
 
 # This is a list of Korean classifiers preceded by pure Korean numerals.
@@ -271,85 +272,6 @@ def divide_hangul(text):
   return text
 
 
-def hangul_number(num, sino=True):
-  '''Reference https://github.com/Kyubyong/g2pK'''
-  num = re.sub(',', '', num)
-
-  if num == '0':
-      return '영'
-  if not sino and num == '20':
-      return '스무'
-
-  digits = '123456789'
-  names = '일이삼사오육칠팔구'
-  digit2name = {d: n for d, n in zip(digits, names)}
-  
-  modifiers = '한 두 세 네 다섯 여섯 일곱 여덟 아홉'
-  decimals = '열 스물 서른 마흔 쉰 예순 일흔 여든 아흔'
-  digit2mod = {d: mod for d, mod in zip(digits, modifiers.split())}
-  digit2dec = {d: dec for d, dec in zip(digits, decimals.split())}
-
-  spelledout = []
-  for i, digit in enumerate(num):
-    i = len(num) - i - 1
-    if sino:
-      if i == 0:
-        name = digit2name.get(digit, '')
-      elif i == 1:
-        name = digit2name.get(digit, '') + '십'
-        name = name.replace('일십', '십')
-    else:
-      if i == 0:
-        name = digit2mod.get(digit, '')
-      elif i == 1:
-        name = digit2dec.get(digit, '')
-    if digit == '0':
-      if i % 4 == 0:
-        last_three = spelledout[-min(3, len(spelledout)):]
-        if ''.join(last_three) == '':
-          spelledout.append('')
-          continue
-      else:
-        spelledout.append('')
-        continue
-    if i == 2:
-      name = digit2name.get(digit, '') + '백'
-      name = name.replace('일백', '백')
-    elif i == 3:
-      name = digit2name.get(digit, '') + '천'
-      name = name.replace('일천', '천')
-    elif i == 4:
-      name = digit2name.get(digit, '') + '만'
-      name = name.replace('일만', '만')
-    elif i == 5:
-      name = digit2name.get(digit, '') + '십'
-      name = name.replace('일십', '십')
-    elif i == 6:
-      name = digit2name.get(digit, '') + '백'
-      name = name.replace('일백', '백')
-    elif i == 7:
-      name = digit2name.get(digit, '') + '천'
-      name = name.replace('일천', '천')
-    elif i == 8:
-      name = digit2name.get(digit, '') + '억'
-    elif i == 9:
-      name = digit2name.get(digit, '') + '십'
-    elif i == 10:
-      name = digit2name.get(digit, '') + '백'
-    elif i == 11:
-      name = digit2name.get(digit, '') + '천'
-    elif i == 12:
-      name = digit2name.get(digit, '') + '조'
-    elif i == 13:
-      name = digit2name.get(digit, '') + '십'
-    elif i == 14:
-      name = digit2name.get(digit, '') + '백'
-    elif i == 15:
-      name = digit2name.get(digit, '') + '천'
-    spelledout.append(name)
-  return ''.join(elem for elem in spelledout)
-
-
 def number_to_hangul(text):
   '''Reference https://github.com/Kyubyong/g2pK'''
   tokens = set(re.findall(r'(\d[\d,]*)([\uac00-\ud71f]+)', text))
@@ -455,6 +377,7 @@ def chinese_cleaners(text):
 def zh_ja_mixture_cleaners(text):
   chinese_texts=re.findall(r'\[ZH\].*?\[ZH\]',text)
   japanese_texts=re.findall(r'\[JA\].*?\[JA\]',text)
+
   for chinese_text in chinese_texts:
     cleaned_text=number_to_chinese(chinese_text[4:-4])
     cleaned_text=chinese_to_bopomofo(cleaned_text)
@@ -462,12 +385,35 @@ def zh_ja_mixture_cleaners(text):
     cleaned_text=bopomofo_to_romaji(cleaned_text)
     cleaned_text=re.sub('i[aoe]',lambda x:'y'+x.group(0)[1:],cleaned_text)
     cleaned_text=re.sub('u[aoəe]',lambda x:'w'+x.group(0)[1:],cleaned_text)
-    cleaned_text=re.sub('([ʦs]`?[⁼ʰ]?)([→↓↑]+)',lambda x:x.group(1)+'ɻ'+x.group(2),cleaned_text)
+    cleaned_text=re.sub('([ʦsɹ]`[⁼ʰ]?)([→↓↑]+)',lambda x:x.group(1)+'ɹ`'+x.group(2),cleaned_text).replace('ɻ','ɹ`')
+    cleaned_text=re.sub('([ʦs][⁼ʰ]?)([→↓↑]+)',lambda x:x.group(1)+'ɹ'+x.group(2),cleaned_text)
     text = text.replace(chinese_text,cleaned_text+' ',1)
   for japanese_text in japanese_texts:
     cleaned_text=japanese_to_romaji_with_accent(japanese_text[4:-4]).replace('ts','ʦ').replace('u','ɯ').replace('...','…')
     text = text.replace(japanese_text,cleaned_text+' ',1)
   text=text[:-1]
-  if re.match('[A-Za-zɯɻəɥ→↓↑]',text[-1]):
+  if re.match('[A-Za-zɯɹəɥ→↓↑]',text[-1]):
+    text += '.'
+  return text
+
+def zh_ja_mixture_cleaners_output(text):
+  chinese_texts=re.findall(r'@ZH@.*?@ZH@',text)
+  japanese_texts=re.findall(r'@JA@.*?@JA@',text)
+
+  for chinese_text in chinese_texts:
+    cleaned_text=number_to_chinese(chinese_text[4:-4])
+    cleaned_text=chinese_to_bopomofo(cleaned_text)
+    cleaned_text=latin_to_bopomofo(cleaned_text)
+    cleaned_text=bopomofo_to_romaji(cleaned_text)
+    cleaned_text=re.sub('i[aoe]',lambda x:'y'+x.group(0)[1:],cleaned_text)
+    cleaned_text=re.sub('u[aoəe]',lambda x:'w'+x.group(0)[1:],cleaned_text)
+    cleaned_text=re.sub('([ʦsɹ]`[⁼ʰ]?)([→↓↑]+)',lambda x:x.group(1)+'ɹ`'+x.group(2),cleaned_text).replace('ɻ','ɹ`')
+    cleaned_text=re.sub('([ʦs][⁼ʰ]?)([→↓↑]+)',lambda x:x.group(1)+'ɹ'+x.group(2),cleaned_text)
+    text = text.replace(chinese_text,cleaned_text+' ',1)
+  for japanese_text in japanese_texts:
+    cleaned_text=japanese_to_romaji_with_accent(japanese_text[4:-4]).replace('ts','ʦ').replace('u','ɯ').replace('...','…')
+    text = text.replace(japanese_text,cleaned_text+' ',1)
+  text=text[:-1]
+  if re.match('[A-Za-zɯɹəɥ→↓↑]',text[-1]):
     text += '.'
   return text

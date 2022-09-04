@@ -6,3 +6,7 @@ phonemizer==2.2.1
 scipy==1.5.2
 Unidecode==1.1.1
 pypinyin==0.47.0
+Unidecode==1.1.1
+pyopenjtalk==0.2.0
+jieba==0.42.1
+cn2an==0.5.17

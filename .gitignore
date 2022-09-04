@@ -9,3 +9,10 @@ __pycache__
 build
 *.c
 monotonic_align/monotonic_align
+
+wav
+wavs
+rika
+mxj_text
+mxj
+biaobei
